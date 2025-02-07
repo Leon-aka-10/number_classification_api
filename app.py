@@ -32,13 +32,8 @@ def check_perfect_number(number):
     if not float(number).is_integer() or number < 1:
         return False  # Perfect numbers are positive integers only
     number = int(number)
-    divisor_sum = 0
-    for i in range(1, int(math.isqrt(number)) + 1):
-        if number % i == 0:
-            divisor_sum += i
-            if i * i != number:
-                divisor_sum += number // i
-    return divisor_sum - number == number
+    divisor_sum = sum(i for i in range(1, number) if number % i == 0)
+    return divisor_sum == number
 
 # Function to verify if a number is prime
 def verify_prime(number):
@@ -98,6 +93,8 @@ def classify_given_number():
             "fun_fact": fun_fact
         }
         return jsonify(response_data), 200
+    except ValueError:
+        return jsonify({"error": True, "message": "Invalid input. Please provide a valid number."}), 400
     except Exception as error:
         return jsonify({"error": True, "message": f"Error processing number: {error}"}), 500
 
