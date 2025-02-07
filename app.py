@@ -93,8 +93,6 @@ def classify_number():
     return jsonify({"error": True, "message": f"Error processing number: {e}"}), 500
 
 
-if __name__ == '__main__':
-  app.run(debug=False, host='0.0.0.0', port=5000)
 
 # Running the Flask application
 if __name__ == '__main__':
