@@ -81,7 +81,7 @@ def classify_given_number():
 
     # Validation for missing number
     if num is None:
-        return jsonify({"error": True, "message": "Missing 'number' parameter"}), 400
+        return jsonify({"error": True, "message": "Missing 'number' parameter", "number": num}), 400
 
     try:
         num = float(num)  # Allow negative and floating-point numbers
@@ -101,9 +101,9 @@ def classify_given_number():
         }
         return jsonify(response_data), 200
     except ValueError:
-        return jsonify({"error": True, "message": "Invalid input. Please provide a valid number."}), 400
+        return jsonify({"error": True, "message": "Invalid input. Please provide a valid number.", "number": num}), 400
     except Exception as error:
-        return jsonify({"error": True, "message": f"Error processing number: {error}"}), 500
+        return jsonify({"error": True, "message": f"Error processing number: {error}", "number": num}), 500
 
 # Running the Flask application
 if __name__ == '__main__':
