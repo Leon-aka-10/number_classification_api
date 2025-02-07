@@ -106,6 +106,6 @@ def classify_given_number():
         return jsonify({"error": True, "message": f"Error processing number: {error}"}), 500
 
 
-   # Running the Flask application
-   if __name__ == '__main__':
-       app.run(debug=False, host='0.0.0.0', port=5001)
+       # Running the Flask application
+       if __name__ == '__main__':
+           app.run(debug=False, host='0.0.0.0', port=5001)
