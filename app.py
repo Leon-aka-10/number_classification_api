@@ -7,11 +7,11 @@ app = Flask(__name__)
 
 def is_armstrong(num):
     """Checks if a number is an Armstrong number."""
-    num_str = str(num)
+    num_str = str(abs(int(number)))  # Use absolute value for digit operations
     n = len(num_str)
     sum_of_powers = sum(int(digit)**n for digit in num_str)
-    return sum_of_powers == num
-
+    return total == abs(int(number))
+    
 def get_number_properties(num):
     """Calculates mathematical properties of a number."""
     properties = []
@@ -68,13 +68,13 @@ def classify_number():
   number = request.args.get('number')
 
   if number is None:
-       return jsonify({"error": True, "message": "Missing 'number' parameter"}), 400
+        return jsonify({"error": True, "message": "Missing 'number' parameter"}), 400
 
   if not number.isdigit():
        return jsonify({"number": number, "error": True, "message": "Invalid input"}), 400
 
   try:
-        number = int(number)
+        number = float(number)  # Allow negative and floating-point numbers
         properties, digit_sum = get_number_properties(number)
         fun_fact = get_fun_fact(number)
         is_prime_val = is_prime(number)
@@ -89,6 +89,9 @@ def classify_number():
              "fun_fact": fun_fact
         }
         return jsonify(response_data), 200
+
+  except ValueError:
+        return jsonify({"error": True, "message": "Invalid input. Please provide a valid number."}), 400
   except Exception as e:
     return jsonify({"error": True, "message": f"Error processing number: {e}"}), 500
 
