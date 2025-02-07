@@ -10,7 +10,7 @@ app = Flask(__name__)
 def check_armstrong(number):
     if not float(number).is_integer() or number < 0:
         return False  # Armstrong is defined for non-negative integers only
-    num_str = str(int(number))
+    num_str = str(abs(int(number)))  # Handle negative numbers
     length = len(num_str)
     total = sum(int(digit) ** length for digit in num_str)
     return total == number
@@ -60,7 +60,7 @@ def fetch_fun_fact(number):
     try:
         if not float(number).is_integer():
             return "Fun facts are available for integers only."
-        response = requests.get(f"http://numbersapi.com/{abs(int(number))}/math?json")
+        response = requests.get(f"http://numbersapi.com/{int(abs(number))}/math?json")
         response.raise_for_status()
         data = response.json()
         return data.get('text')
