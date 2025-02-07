@@ -8,7 +8,7 @@ app = Flask(__name__)
 
 # Function to check if a number is an Armstrong number
 def check_armstrong(number):
-    num_str = str(number)
+    num_str = str(abs(number))  # Handle negative numbers
     length = len(num_str)
     total = sum(int(digit) ** length for digit in num_str)
     return total == number
@@ -19,11 +19,12 @@ def identify_number_properties(number):
     if check_armstrong(number):
         attributes.append("armstrong")
     attributes.append("odd" if number % 2 != 0 else "even")
-    digit_total = sum(int(digit) for digit in str(number))
+    digit_total = sum(int(digit) for digit in str(abs(int(number))))
     return attributes, digit_total
 
 # Function to determine if a number is perfect
 def check_perfect_number(number):
+    number = abs(int(number))  # Handle negative numbers
     if number <= 1:
         return False
     divisor_sum = 0
@@ -36,6 +37,7 @@ def check_perfect_number(number):
 
 # Function to verify if a number is prime
 def verify_prime(number):
+    number = abs(int(number))  # Handle negative numbers
     if number <= 1:
         return False
     if number <= 3:
@@ -52,7 +54,7 @@ def verify_prime(number):
 # Function to retrieve a fun fact about a number from the Numbers API
 def fetch_fun_fact(number):
     try:
-        response = requests.get(f"http://numbersapi.com/{number}/math?json")
+        response = requests.get(f"http://numbersapi.com/{abs(int(number))}/math?json")
         response.raise_for_status()
         data = response.json()
         return data.get('text')
@@ -71,7 +73,7 @@ def classify_given_number():
         return jsonify({"number": number, "error": True, "message": "Invalid input"}), 400
 
     try:
-        number = int(number)
+        number = float(number)  # Allow negative and floating-point numbers
         properties, digit_sum = identify_number_properties(number)
         fun_fact = fetch_fun_fact(number)
         prime_status = verify_prime(number)
