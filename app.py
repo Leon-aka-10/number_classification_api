@@ -3,100 +3,109 @@ import requests
 import math
 import json
 
+# Initialize the Flask application
 app = Flask(__name__)
 
-def is_armstrong(num):
-    """Checks if a number is an Armstrong number."""
-    num_str = str(abs(int(number)))  # Use absolute value for digit operations
-    n = len(num_str)
-    sum_of_powers = sum(int(digit)**n for digit in num_str)
-    return total == abs(int(number))
-    
-def get_number_properties(num):
-    """Calculates mathematical properties of a number."""
-    properties = []
-    if is_armstrong(num):
-      properties.append("armstrong")
-    if num % 2 != 0:
-      properties.append("odd")
-    else:
-      properties.append("even")
-    digit_sum = sum(int(digit) for digit in str(num))
-    return properties, digit_sum
-
-def is_perfect(num):
-    """Checks if a number is a perfect number."""
-    if num <= 1:
-      return False
-    sum_of_divisors = 0
-    for i in range(1, int(math.sqrt(num)) + 1):
-       if num % i == 0:
-            sum_of_divisors += i
-            if i * i != num:
-                sum_of_divisors += num // i
-    return sum_of_divisors - num == num
-
-def is_prime(num):
-  """Checks if a number is prime."""
-  if num <= 1:
-        return False
-  if num <= 3:
-        return True
-  if num % 2 == 0 or num % 3 == 0:
-        return False
-  i = 5
-  while i * i <= num:
-      if num % i == 0 or num % (i + 2) == 0:
-          return False
-      i = i + 6
-  return True
-
-
-def get_fun_fact(num):
-    """Fetches a fun fact about the number from Numbers API."""
+# Function to check if a number is an Armstrong number
+def check_armstrong(num):
     try:
-       response = requests.get(f"http://numbersapi.com/{num}/math?json")
-       response.raise_for_status()
-       data = response.json()
-       return data.get('text')
-    except requests.exceptions.RequestException as e:
-       return f"Could not retrieve fun fact: {e}"
+        num = float(num)
+    except ValueError:
+        return False
+    if not num.is_integer():
+        return False  # Armstrong is defined for integers only
+    num_str = str(abs(int(num)))  # Use absolute value for digit operations
+    length = len(num_str)
+    total = sum(int(digit) ** length for digit in num_str)
+    return total == abs(int(num))
 
+# Function to identify properties of a given number
+def identify_number_properties(num):
+    attributes = []
+    if check_armstrong(num):
+        attributes.append("armstrong")
+    if int(abs(num)) % 2 != 0:
+        attributes.append("odd")
+    else:
+        attributes.append("even")
+    digit_total = sum(int(digit) for digit in str(abs(int(num)))) if float(num).is_integer() else 0
+    return attributes, digit_total
+
+# Function to determine if a number is perfect
+def check_perfect_number(num):
+    try:
+        num = float(num)
+        if not num.is_integer() or num < 1:
+            return False  # Perfect numbers are positive integers only
+        num = int(num)
+    except ValueError:
+        return False
+    divisor_sum = sum(i for i in range(1, num) if num % i == 0)
+    return divisor_sum == num
+
+# Function to verify if a number is prime
+def verify_prime(num):
+    try:
+        num = float(num)
+        if not num.is_integer() or num < 2:
+            return False  # Primes are positive integers greater than 1
+        num = int(num)
+    except ValueError:
+        return False
+    if num == 2 or num == 3:
+        return True
+    if num % 2 == 0 or num % 3 == 0:
+        return False
+    for i in range(5, int(math.isqrt(num)) + 1, 6):
+        if num % i == 0 or num % (i + 2) == 0:
+            return False
+    return True
+
+# Function to retrieve a fun fact about a number from the Numbers API
+def fetch_fun_fact(num):
+    try:
+        num = float(num)
+        if not num.is_integer():
+            return "Fun facts are available for integers only."
+        response = requests.get(f"http://numbersapi.com/{int(abs(num))}/math?json")
+        response.raise_for_status()
+        data = response.json()
+        return data.get('text')
+    except (ValueError, requests.exceptions.RequestException) as error:
+        return f"Could not retrieve fun fact: {error}"
+
+# API endpoint to classify a number
 @app.route('/api/classify-number', methods=['GET'])
-def classify_number():
-  """API endpoint to classify a number."""
-  number = request.args.get('number')
+def classify_given_number():
+    num = request.args.get('number')
 
-  if number is None:
+    # Validation for missing number
+    if num is None:
         return jsonify({"error": True, "message": "Missing 'number' parameter"}), 400
 
-  if not number.isdigit():
-       return jsonify({"number": number, "error": True, "message": "Invalid input"}), 400
+    try:
+        num = float(num)  # Allow negative and floating-point numbers
+        properties, digit_sum = identify_number_properties(num)
+        fun_fact = fetch_fun_fact(num)
+        prime_status = verify_prime(num)
+        perfect_status = check_perfect_number(num)
 
-  try:
-        number = float(number)  # Allow negative and floating-point numbers
-        properties, digit_sum = get_number_properties(number)
-        fun_fact = get_fun_fact(number)
-        is_prime_val = is_prime(number)
-        is_perfect_val = is_perfect(number)
-
+        # Response data construction
         response_data = {
-             "number": number,
-             "is_prime": is_prime_val,
-            "is_perfect": is_perfect_val,
-             "properties": properties,
-             "digit_sum": digit_sum,
-             "fun_fact": fun_fact
+            "number": num,
+            "is_prime": prime_status,
+            "is_perfect": perfect_status,
+            "properties": properties,
+            "digit_sum": digit_sum,
+            "fun_fact": fun_fact
         }
         return jsonify(response_data), 200
-
-  except ValueError:
+    except ValueError:
         return jsonify({"error": True, "message": "Invalid input. Please provide a valid number."}), 400
-  except Exception as e:
-    return jsonify({"error": True, "message": f"Error processing number: {e}"}), 500
+    except Exception as error:
+        return jsonify({"error": True, "message": f"Error processing number: {error}"}), 500
 
 
-
-# Running the Flask application
-if __name__ == '__main__':
-    app.run(debug=False, host='0.0.0.0', port=5001)
+   # Running the Flask application
+   if __name__ == '__main__':
+       app.run(debug=False, host='0.0.0.0', port=5001)
