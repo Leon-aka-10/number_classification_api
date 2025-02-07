@@ -10,7 +10,7 @@ app = Flask(__name__)
 def check_armstrong(number):
     if not float(number).is_integer() or number < 0:
         return False  # Armstrong is defined for non-negative integers only
-    num_str = str(abs(int(number)))  # Handle negative numbers
+    num_str = str(abs(int(number)))  # Use absolute value for digit operations
     length = len(num_str)
     total = sum(int(digit) ** length for digit in num_str)
     return total == number
@@ -20,7 +20,10 @@ def identify_number_properties(number):
     attributes = []
     if check_armstrong(number):
         attributes.append("armstrong")
-    attributes.append("odd" if number % 2 != 0 else "even")
+    if int(abs(number)) % 2 != 0:
+        attributes.append("odd")
+    else:
+        attributes.append("even")
     digit_total = sum(int(digit) for digit in str(abs(int(number)))) if float(number).is_integer() else 0
     return attributes, digit_total
 
