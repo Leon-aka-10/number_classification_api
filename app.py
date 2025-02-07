@@ -8,7 +8,9 @@ app = Flask(__name__)
 
 # Function to check if a number is an Armstrong number
 def check_armstrong(number):
-    num_str = str(abs(number))  # Handle negative numbers
+    if not float(number).is_integer() or number < 0:
+        return False  # Armstrong is defined for non-negative integers only
+    num_str = str(int(number))
     length = len(num_str)
     total = sum(int(digit) ** length for digit in num_str)
     return total == number
@@ -19,14 +21,14 @@ def identify_number_properties(number):
     if check_armstrong(number):
         attributes.append("armstrong")
     attributes.append("odd" if number % 2 != 0 else "even")
-    digit_total = sum(int(digit) for digit in str(abs(int(number))))
+    digit_total = sum(int(digit) for digit in str(abs(int(number)))) if float(number).is_integer() else 0
     return attributes, digit_total
 
 # Function to determine if a number is perfect
 def check_perfect_number(number):
-    number = abs(int(number))  # Handle negative numbers
-    if number <= 1:
-        return False
+    if not float(number).is_integer() or number < 1:
+        return False  # Perfect numbers are positive integers only
+    number = int(number)
     divisor_sum = 0
     for i in range(1, int(math.isqrt(number)) + 1):
         if number % i == 0:
@@ -37,7 +39,9 @@ def check_perfect_number(number):
 
 # Function to verify if a number is prime
 def verify_prime(number):
-    number = abs(int(number))  # Handle negative numbers
+    if not float(number).is_integer() or number < 2:
+        return False  # Primes are positive integers greater than 1
+    number = int(number)
     if number <= 1:
         return False
     if number <= 3:
@@ -54,6 +58,8 @@ def verify_prime(number):
 # Function to retrieve a fun fact about a number from the Numbers API
 def fetch_fun_fact(number):
     try:
+        if not float(number).is_integer():
+            return "Fun facts are available for integers only."
         response = requests.get(f"http://numbersapi.com/{abs(int(number))}/math?json")
         response.raise_for_status()
         data = response.json()
